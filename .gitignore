@@ -41,6 +41,11 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Local virtual environments
+.venv/
+venv/
+env/
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
@@ -62,13 +67,35 @@ web_modules/
 # Output of 'npm pack'
 *.tgz
 
+# General build output
+/build/
+
 # Yarn Integrity file
 .yarn-integrity
 
 # dotenv environment variable files
 .env
 .env.*
+.envrc
 !.env.example
+
+# Local secrets and credentials
+secrets/
+secrets.*
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*service-account*.json
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+*.dump
+*.backup
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
