@@ -6,8 +6,9 @@ the [backend](https://github.com/pralay143/leavehub-backend).
 
 ## Status
 
-Repository setup only. Application code and the Vite project scaffold have
-not been created yet.
+The Vite React + TypeScript project has been scaffolded from the
+`create-vite` `react-ts` template. No LeaveHub application features have
+been implemented yet.
 
 ## Planned stack
 
@@ -19,8 +20,11 @@ not been created yet.
 
 1. Install a current Node.js LTS release.
 2. Copy `.env.example` to `.env.local` and set the API URL if needed.
-3. Once the Vite project has been scaffolded, install dependencies with
-   `npm install` and start the development server with `npm run dev`.
+3. Install dependencies with `npm install`.
+4. Start the development server with `npm run dev` (http://localhost:5173).
+
+Other scripts: `npm run build` (type-check and production build to `dist/`),
+`npm run lint` (oxlint), and `npm run preview` (serve the production build).
 
 Do not commit local environment files, credentials, or generated build output.
 The repository `.gitignore` excludes these files and directories.
