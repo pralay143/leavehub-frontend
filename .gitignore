@@ -174,3 +174,18 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Vite project scaffold (from create-vite react-ts template)
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
