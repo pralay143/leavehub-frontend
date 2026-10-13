@@ -1,30 +1,102 @@
 # LeaveHub Frontend
 
-The frontend for LeaveHub, an employee leave management system. The planned
-stack is React, TypeScript, and Vite. This repository is kept separate from
-the [backend](https://github.com/pralay143/leavehub-backend).
+Web app for LeaveHub, an employee leave management system. It talks to the
+Django REST API in the separate
+[leavehub-backend](https://github.com/pralay143/leavehub-backend) repository.
 
-## Status
+## Stack
 
-The Vite React + TypeScript project has been scaffolded from the
-`create-vite` `react-ts` template. No LeaveHub application features have
-been implemented yet.
+- React 19, TypeScript 6, Vite 8
+- React Router 8 and TanStack Query 5
+- Mantine 9 (components, forms, dates, notifications, modals)
+- A typed API client generated from the backend's OpenAPI schema with
+  `@hey-api/openapi-ts`
 
-## Planned stack
+## Pages
 
-- React with TypeScript
-- Vite for development and production builds
-- Django REST Framework API, configured with `VITE_API_BASE_URL`
+| Page | Who | What |
+|---|---|---|
+| Login | Everyone | Email and password |
+| Dashboard | Everyone | Balance cards (available, used, pending), upcoming leave, review count for approvers |
+| My requests | Everyone | Filter by status and year, create a request (with a working-day preview), cancel |
+| Request details | Employee, their manager, HR | Details, review comment and the actions the user may take |
+| Review | Managers, HR | Pending requests routed to you: approve, or reject with a comment |
+| Team | Managers, HR | Direct reports' requests; HR can switch to all employees |
+| Users, Departments, Leave types, Balances | HR | Administration, including yearly balance allocation with a dry-run preview |
 
-## Local development
+The navigation only shows pages for your role; the backend enforces all
+permissions.
 
-1. Install a current Node.js LTS release.
-2. Copy `.env.example` to `.env.local` and set the API URL if needed.
-3. Install dependencies with `npm install`.
-4. Start the development server with `npm run dev` (http://localhost:5173).
+## Local setup
 
-Other scripts: `npm run build` (type-check and production build to `dist/`),
-`npm run lint` (oxlint), and `npm run preview` (serve the production build).
+Requirements: Node.js 22.22 or later (required by React Router 8), and the backend running on
+http://127.0.0.1:8000 (see the backend README).
 
-Do not commit local environment files, credentials, or generated build output.
-The repository `.gitignore` excludes these files and directories.
+```powershell
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+Open http://localhost:5173 and log in with a backend user, for example the
+superuser created with `createsuperuser`.
+
+### Configuration
+
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Backend origin, default `http://localhost:8000`. Do not add `/api`; the generated paths already include it |
+
+Vite reads env files only at startup, so restart `npm run dev` after changing
+`.env.local`. The backend must allow this origin in `CORS_ALLOWED_ORIGINS`.
+
+## Scripts
+
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Development server on http://localhost:5173 |
+| `npm run build` | Type-check and build to `dist/` |
+| `npm run preview` | Serve the production build |
+| `npm run lint` | Lint with oxlint |
+| `npm run api:generate` | Regenerate `src/api/generated/` from the running backend's schema |
+
+## API client
+
+`src/api/generated/` is generated code and is committed, so the app builds
+without the backend. Do not edit it by hand: after an API change, start the
+backend and run `npm run api:generate` (set `OPENAPI_SCHEMA_URL` to use a
+different schema URL).
+
+`src/api/client.ts` configures the base URL, sends the access token, and
+provides `unwrap()` and `ApiError` for turning API responses into data or
+errors with field-level messages.
+
+## Authentication
+
+- The access token is kept in memory and the refresh token in `localStorage`.
+- On a 401 the client refreshes once and retries. All concurrent requests
+  share a single refresh, because the backend's refresh tokens are single-use.
+- Sessions are restored on reload, and logging out in one tab logs out the
+  others. Logout also revokes the refresh token on the server.
+
+## Project layout
+
+```
+src/
+  api/          client setup, config, generated client
+  auth/         tokens, AuthProvider, route guards, role helpers
+  features/
+    leave/      leave data hooks, request table, balance cards, forms and modals
+    admin/      admin data hooks
+  components/   shared UI helpers (loading/error states, form error mapping)
+  layout/       app shell and role-based navigation
+  pages/        route components (admin pages under pages/admin)
+  router.tsx    routes, lazily loaded per page
+```
+
+## Notes
+
+- `npm audit` reports issues in `js-yaml`, which is only used by the
+  development-time client generator; the shipped app has none
+  (`npm audit --omit=dev`). The generator reads the schema as JSON.
+- Do not commit `.env.local`, `node_modules` or `dist`; `.gitignore` excludes them.
