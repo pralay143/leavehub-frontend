@@ -5,7 +5,6 @@ import { isApprover, isHR } from './auth/roles'
 import { AppLayout } from './layout/AppLayout'
 import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { PlaceholderPage } from './pages/PlaceholderPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -44,10 +43,24 @@ export const router = createBrowserRouter([
             path: 'admin',
             element: <RequireRole allow={isHR} />,
             children: [
-              { path: 'users', element: <PlaceholderPage title="Users" /> },
-              { path: 'departments', element: <PlaceholderPage title="Departments" /> },
-              { path: 'leave-types', element: <PlaceholderPage title="Leave types" /> },
-              { path: 'balances', element: <PlaceholderPage title="Balances" /> },
+              {
+                path: 'users',
+                lazy: () => import('./pages/admin/AdminUsersPage').then((m) => ({ Component: m.AdminUsersPage })),
+              },
+              {
+                path: 'departments',
+                lazy: () =>
+                  import('./pages/admin/AdminDepartmentsPage').then((m) => ({ Component: m.AdminDepartmentsPage })),
+              },
+              {
+                path: 'leave-types',
+                lazy: () =>
+                  import('./pages/admin/AdminLeaveTypesPage').then((m) => ({ Component: m.AdminLeaveTypesPage })),
+              },
+              {
+                path: 'balances',
+                lazy: () => import('./pages/admin/AdminBalancesPage').then((m) => ({ Component: m.AdminBalancesPage })),
+              },
             ],
           },
           { path: '*', element: <NotFoundPage /> },

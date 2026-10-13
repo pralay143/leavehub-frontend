@@ -607,6 +607,10 @@ export type LeaveBalancesListData = {
          */
         page?: number;
         /**
+         * Number of results to return per page.
+         */
+        page_size?: number;
+        /**
          * Defaults to the current year.
          */
         year?: number;
@@ -678,6 +682,10 @@ export type LeaveRequestsListData = {
          * A page number within the paginated result set.
          */
         page?: number;
+        /**
+         * Number of results to return per page.
+         */
+        page_size?: number;
         /**
          * mine (default): your requests. team: your direct reports. review: pending requests routed to you. all: HR only.
          */
@@ -848,10 +856,22 @@ export type UsersListData = {
     body?: never;
     path?: never;
     query?: {
+        department?: number;
+        is_active?: boolean;
+        manager?: number;
         /**
          * A page number within the paginated result set.
          */
         page?: number;
+        /**
+         * Number of results to return per page.
+         */
+        page_size?: number;
+        role?: 'EMPLOYEE' | 'HR' | 'MANAGER';
+        /**
+         * Matches email, username, first or last name.
+         */
+        search?: string;
     };
     url: '/api/users/';
 };
