@@ -15,9 +15,18 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { index: true, element: <PlaceholderPage title="Dashboard" /> },
-          { path: 'requests', element: <PlaceholderPage title="My requests" /> },
-          { path: 'requests/:id', element: <PlaceholderPage title="Leave request" /> },
+          {
+            index: true,
+            lazy: () => import('./pages/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
+          },
+          {
+            path: 'requests',
+            lazy: () => import('./pages/MyRequestsPage').then((m) => ({ Component: m.MyRequestsPage })),
+          },
+          {
+            path: 'requests/:id',
+            lazy: () => import('./pages/RequestDetailPage').then((m) => ({ Component: m.RequestDetailPage })),
+          },
           {
             element: <RequireRole allow={isApprover} />,
             children: [
