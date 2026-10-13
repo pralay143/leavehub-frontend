@@ -12,6 +12,7 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 
 import './api/client'
+import { AuthProvider } from './auth/AuthProvider'
 import { router } from './router'
 import { theme } from './theme'
 
@@ -28,7 +29,9 @@ createRoot(document.getElementById('root')!).render(
         <QueryClientProvider client={queryClient}>
           <ModalsProvider>
             <Notifications position="top-right" />
-            <RouterProvider router={router} />
+            <AuthProvider>
+              <RouterProvider router={router} />
+            </AuthProvider>
           </ModalsProvider>
         </QueryClientProvider>
       </DatesProvider>

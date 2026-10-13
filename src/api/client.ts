@@ -1,9 +1,35 @@
+import { getAccessToken, getOrRefreshAccessToken, refreshAccessToken } from '../auth/tokens'
+import { API_BASE_URL } from './config'
 import { client } from './generated/client.gen'
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+/**
+ * fetch wrapper for authenticated requests: on a 401 it refreshes the access
+ * token once (shared with any other request doing the same) and retries.
+ */
+const fetchWithRefresh: typeof fetch = async (input, init) => {
+  const request = new Request(input, init)
+  const sentAuthorization = request.headers.get('Authorization')
+  const retry = sentAuthorization ? request.clone() : null
+
+  const response = await fetch(request)
+  if (response.status !== 401 || !retry) return response
+
+  // Another request may already have refreshed the token; otherwise refresh now.
+  const current = getAccessToken()
+  const token = current && `Bearer ${current}` !== sentAuthorization ? current : await refreshAccessToken()
+  if (!token) return response
+
+  retry.headers.set('Authorization', `Bearer ${token}`)
+  return fetch(retry)
+}
 
 // The generated client defaults to the schema's server URL; use the configured one.
-client.setConfig({ baseUrl: API_BASE_URL })
+// `auth` is only called for endpoints that require authentication.
+client.setConfig({
+  baseUrl: API_BASE_URL,
+  auth: () => getOrRefreshAccessToken(),
+  fetch: fetchWithRefresh,
+})
 
 /** An error response from the API, with the parsed body when there is one. */
 export class ApiError extends Error {

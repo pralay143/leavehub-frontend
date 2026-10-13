@@ -61,7 +61,7 @@ export type LeaveRequest = {
     readonly days: string;
     readonly reason: string;
     status: StatusEnum;
-    reviewed_by: UserSummary;
+    reviewed_by: UserSummary | null;
     readonly reviewed_at: string | null;
     readonly review_comment: string;
     readonly created_at: string;
@@ -130,8 +130,8 @@ export type Me = {
     readonly last_name: string;
     readonly full_name: string;
     role: RoleEnum;
-    manager: UserSummary;
-    department: Department;
+    manager: UserSummary | null;
+    department: Department | null;
     /**
      * Superuser status
      *
@@ -257,6 +257,14 @@ export type StatusEnum = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
 export type TokenBlacklist = {
     refresh: string;
+};
+
+/**
+ * Response of the login endpoint (documentation only).
+ */
+export type TokenPair = {
+    readonly access: string;
+    readonly refresh: string;
 };
 
 export type TokenRefresh = {
@@ -479,7 +487,7 @@ export type AuthLoginCreateData = {
 };
 
 export type AuthLoginCreateResponses = {
-    200: Login;
+    200: TokenPair;
 };
 
 export type AuthLoginCreateResponse = AuthLoginCreateResponses[keyof AuthLoginCreateResponses];
