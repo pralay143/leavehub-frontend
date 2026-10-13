@@ -1,51 +1,20 @@
-import { Button, Group, Pagination, Select, Stack, Title } from '@mantine/core'
+import { Button, Group, Stack, Title } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { useSearchParams } from 'react-router'
 
-import type { StatusEnum } from '../api/generated'
 import { ErrorAlert, LoadingBlock } from '../components/QueryState'
-import { type LeaveRequestQuery, useLeaveRequests } from '../features/leave/api'
-import { STATUS_OPTIONS, currentYear } from '../features/leave/format'
+import { useLeaveRequests } from '../features/leave/api'
 import { LeaveRequestTable } from '../features/leave/LeaveRequestTable'
 import { NewLeaveRequestModal } from '../features/leave/NewLeaveRequestModal'
+import { RequestFilters, RequestPagination } from '../features/leave/RequestListControls'
+import { useRequestListParams } from '../features/leave/useRequestListParams'
 import { useConfirmCancel } from '../features/leave/useConfirmCancel'
 
-const PAGE_SIZE = 20
-
 export function MyRequestsPage() {
-  const [params, setParams] = useSearchParams()
+  const list = useRequestListParams()
   const [newOpened, newModal] = useDisclosure()
   const confirmCancel = useConfirmCancel()
 
-  const status = (params.get('status') as StatusEnum | null) ?? undefined
-  const yearParam = params.get('year') ?? String(currentYear())
-  const page = Math.max(1, Number(params.get('page')) || 1)
-
-  const query: LeaveRequestQuery = {
-    scope: 'mine',
-    status,
-    year: yearParam === 'all' ? undefined : Number(yearParam),
-    page,
-  }
-  const requests = useLeaveRequests(query)
-
-  const year = currentYear()
-  const yearOptions = [
-    { value: 'all', label: 'All years' },
-    ...[year + 1, year, year - 1, year - 2].map((y) => ({ value: String(y), label: String(y) })),
-  ]
-
-  const update = (changes: Record<string, string | null>) => {
-    const next = new URLSearchParams(params)
-    for (const [key, value] of Object.entries(changes)) {
-      if (value === null) next.delete(key)
-      else next.set(key, value)
-    }
-    if (!('page' in changes)) next.delete('page')
-    setParams(next, { replace: true })
-  }
-
-  const totalPages = requests.data ? Math.max(1, Math.ceil(requests.data.count / PAGE_SIZE)) : 1
+  const requests = useLeaveRequests({ scope: 'mine', status: list.status, year: list.year, page: list.page })
 
   return (
     <Stack gap="lg">
@@ -54,25 +23,7 @@ export function MyRequestsPage() {
         <Button onClick={newModal.open}>New request</Button>
       </Group>
 
-      <Group gap="sm">
-        <Select
-          aria-label="Status"
-          placeholder="All statuses"
-          data={STATUS_OPTIONS}
-          value={status ?? null}
-          onChange={(value) => update({ status: value })}
-          clearable
-          w={180}
-        />
-        <Select
-          aria-label="Year"
-          data={yearOptions}
-          value={yearParam}
-          onChange={(value) => update({ year: value ?? String(year) })}
-          allowDeselect={false}
-          w={140}
-        />
-      </Group>
+      <RequestFilters list={list} />
 
       {requests.isLoading ? (
         <LoadingBlock />
@@ -92,9 +43,7 @@ export function MyRequestsPage() {
         />
       )}
 
-      {totalPages > 1 && (
-        <Pagination value={page} total={totalPages} onChange={(value) => update({ page: String(value) })} />
-      )}
+      <RequestPagination list={list} count={requests.data?.count} />
 
       <NewLeaveRequestModal opened={newOpened} onClose={newModal.close} />
     </Stack>

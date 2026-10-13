@@ -5,9 +5,11 @@ import {
   type LeaveRequestCreate,
   type LeaveRequestsListData,
   leaveBalancesList,
+  leaveRequestsApproveCreate,
   leaveRequestsCancelCreate,
   leaveRequestsCreate,
   leaveRequestsList,
+  leaveRequestsRejectCreate,
   leaveRequestsRetrieve,
   leaveTypesList,
 } from '../../api/generated'
@@ -80,6 +82,26 @@ export function useCancelLeaveRequest() {
   const invalidate = useInvalidateLeaveData()
   return useMutation({
     mutationFn: (id: number) => unwrap(leaveRequestsCancelCreate({ path: { id } })),
+    onSuccess: invalidate,
+  })
+}
+
+export type ReviewInput = { id: number; comment: string }
+
+export function useApproveLeaveRequest() {
+  const invalidate = useInvalidateLeaveData()
+  return useMutation({
+    mutationFn: ({ id, comment }: ReviewInput) =>
+      unwrap(leaveRequestsApproveCreate({ path: { id }, body: { comment } })),
+    onSuccess: invalidate,
+  })
+}
+
+export function useRejectLeaveRequest() {
+  const invalidate = useInvalidateLeaveData()
+  return useMutation({
+    mutationFn: ({ id, comment }: ReviewInput) =>
+      unwrap(leaveRequestsRejectCreate({ path: { id }, body: { comment } })),
     onSuccess: invalidate,
   })
 }

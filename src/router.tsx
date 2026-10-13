@@ -30,8 +30,14 @@ export const router = createBrowserRouter([
           {
             element: <RequireRole allow={isApprover} />,
             children: [
-              { path: 'review', element: <PlaceholderPage title="Review" /> },
-              { path: 'team', element: <PlaceholderPage title="Team" /> },
+              {
+                path: 'review',
+                lazy: () => import('./pages/ReviewPage').then((m) => ({ Component: m.ReviewPage })),
+              },
+              {
+                path: 'team',
+                lazy: () => import('./pages/TeamPage').then((m) => ({ Component: m.TeamPage })),
+              },
             ],
           },
           {

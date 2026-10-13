@@ -7,7 +7,9 @@ import { ErrorAlert, LoadingBlock } from '../components/QueryState'
 import { useLeaveRequest } from '../features/leave/api'
 import { formatDateRange, formatDateTime, formatDays } from '../features/leave/format'
 import { StatusBadge } from '../features/leave/StatusBadge'
+import { ReviewButtons } from '../features/leave/ReviewButtons'
 import { useConfirmCancel } from '../features/leave/useConfirmCancel'
+import { useReview } from '../features/leave/useReview'
 import { NotFoundPage } from './NotFoundPage'
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -25,6 +27,7 @@ export function RequestDetailPage() {
   const id = Number(useParams().id)
   const request = useLeaveRequest(id)
   const confirmCancel = useConfirmCancel()
+  const review = useReview()
   const navigate = useNavigate()
   const location = useLocation()
   // Go back when the page was reached from inside the app; otherwise to the dashboard.
@@ -72,13 +75,17 @@ export function RequestDetailPage() {
         </SimpleGrid>
       </Paper>
 
-      {leave.can_cancel && (
+      {(leave.can_cancel || leave.can_approve || leave.can_reject) && (
         <Group>
-          <Button color="red" variant="light" onClick={() => confirmCancel(leave)}>
-            Cancel request
-          </Button>
+          <ReviewButtons request={leave} onReview={review.open} size="sm" />
+          {leave.can_cancel && (
+            <Button color="red" variant="light" onClick={() => confirmCancel(leave)}>
+              Cancel request
+            </Button>
+          )}
         </Group>
       )}
+      {review.modal}
     </Stack>
   )
 }
