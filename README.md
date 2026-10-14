@@ -17,12 +17,12 @@ Django REST API in the separate
 | Page | Who | What |
 |---|---|---|
 | Login | Everyone | Email and password |
-| Dashboard | Everyone | Balance cards (available, used, pending), upcoming leave, review count for approvers |
-| My requests | Everyone | Filter by status and year, create a request (with a working-day preview), cancel |
+| Dashboard | Everyone | Balance cards (available, used, pending), upcoming leave and public holidays, review count for approvers |
+| My requests | Everyone | Filter by status and year, create a request (calendar marks public holidays; working-day preview excludes weekends and holidays), cancel |
 | Request details | Employee, their manager, HR | Details, review comment and the actions the user may take |
 | Review | Managers, HR | Pending requests routed to you: approve, or reject with a comment |
 | Team | Managers, HR | Direct reports' requests; HR can switch to all employees |
-| Users, Departments, Leave types, Balances | HR | Administration, including yearly balance allocation with a dry-run preview |
+| Users, Departments, Leave types, Holidays, Balances | HR | Administration, including public holidays and yearly balance allocation with a dry-run preview |
 
 The navigation only shows pages for your role; the backend enforces all
 permissions.
