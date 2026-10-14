@@ -94,6 +94,30 @@ src/
   router.tsx    routes, lazily loaded per page
 ```
 
+## Deployment
+
+The `Dockerfile` builds the app with Node and serves it with nginx (non-root,
+port 8080). The API address is compiled in, so build once per environment:
+
+```sh
+docker build -t leavehub-frontend --build-arg VITE_API_BASE_URL=https://api.leavehub.example.com .
+docker run -d -p 8080:8080 -e API_ORIGIN=https://api.leavehub.example.com leavehub-frontend
+```
+
+- `API_ORIGIN` is added to the Content-Security-Policy `connect-src`; leave it
+  empty when the API is served from the same origin.
+- nginx serves `index.html` for client-side routes, caches the fingerprinted
+  files in `/assets/` long-term, and sends security headers (CSP,
+  `X-Frame-Options`, `nosniff`, `Referrer-Policy`). See
+  `nginx/default.conf.template`.
+- `GET /healthz` returns `ok` for health checks.
+- On a static host instead of Docker, run `npm run build` with
+  `VITE_API_BASE_URL` set, publish `dist/`, rewrite unknown paths to
+  `/index.html`, and set the same security headers.
+
+The full guide, including backend settings, is in the backend repository's
+`DEPLOYMENT.md`.
+
 ## Notes
 
 - `npm audit` reports issues in `js-yaml`, which is only used by the
