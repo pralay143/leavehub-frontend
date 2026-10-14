@@ -7,12 +7,17 @@ import {
   type LeaveTypeWritable,
   type PatchedDepartmentWritable,
   type PatchedLeaveTypeWritable,
+  type PatchedPublicHolidayWritable,
+  type PublicHolidayWritable,
   type PatchedUserWritable,
   type UserWritable,
   type UsersListData,
   departmentsCreate,
   departmentsList,
   departmentsPartialUpdate,
+  holidaysCreate,
+  holidaysDestroy,
+  holidaysPartialUpdate,
   leaveBalancesAllocateCreate,
   leaveBalancesList,
   leaveBalancesPartialUpdate,
@@ -122,5 +127,26 @@ export function useAllocateYear() {
     mutationFn: ({ year, dryRun }: { year: number; dryRun: boolean }) =>
       unwrap(leaveBalancesAllocateCreate({ body: { year, dry_run: dryRun } })),
     onSuccess: (_result, { dryRun }) => (dryRun ? undefined : invalidate()),
+  })
+}
+
+// --- Public holidays ------------------------------------------------------------
+
+export function useSaveHoliday() {
+  const invalidate = useInvalidate(leaveKeys.holidaysAll)
+  return useMutation({
+    mutationFn: ({ id, body }: { id?: number; body: PatchedPublicHolidayWritable }) =>
+      id
+        ? unwrap(holidaysPartialUpdate({ path: { id }, body }))
+        : unwrap(holidaysCreate({ body: body as PublicHolidayWritable })),
+    onSuccess: invalidate,
+  })
+}
+
+export function useDeleteHoliday() {
+  const invalidate = useInvalidate(leaveKeys.holidaysAll)
+  return useMutation({
+    mutationFn: (id: number) => unwrap(holidaysDestroy({ path: { id } })),
+    onSuccess: invalidate,
   })
 }

@@ -1,13 +1,14 @@
-import { Button, Card, Group, Stack, Text, Title } from '@mantine/core'
+import { Button, Card, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import dayjs from 'dayjs'
 import { Link } from 'react-router'
 
 import { ErrorAlert, LoadingBlock } from '../components/QueryState'
 import { useCurrentUser } from '../auth/context'
 import { isApprover } from '../auth/roles'
-import { useLeaveRequests, useMyBalances } from '../features/leave/api'
+import { useHolidaysForYears, useLeaveRequests, useMyBalances } from '../features/leave/api'
 import { BalanceCards } from '../features/leave/BalanceCards'
-import { currentYear, today } from '../features/leave/format'
+import { currentYear, formatDate, today } from '../features/leave/format'
 import { LeaveRequestTable } from '../features/leave/LeaveRequestTable'
 import { NewLeaveRequestModal } from '../features/leave/NewLeaveRequestModal'
 
@@ -19,6 +20,7 @@ export function DashboardPage() {
   const balances = useMyBalances(year, user.id)
   const mine = useLeaveRequests({ scope: 'mine' })
   const review = useLeaveRequests({ scope: 'review' }, { enabled: isApprover(user) })
+  const { holidays } = useHolidaysForYears([year, year + 1])
 
   // Upcoming = pending or approved leave that has not ended yet, soonest first.
   const now = today()
@@ -26,6 +28,7 @@ export function DashboardPage() {
     .filter((r) => (r.status === 'PENDING' || r.status === 'APPROVED') && r.end_date >= now)
     .sort((a, b) => a.start_date.localeCompare(b.start_date))
     .slice(0, 5)
+  const upcomingHolidays = holidays.filter((holiday) => holiday.date >= now).slice(0, 5)
 
   return (
     <Stack gap="xl">
@@ -79,6 +82,22 @@ export function DashboardPage() {
           <LeaveRequestTable requests={upcoming} emptyText="No upcoming leave." />
         )}
       </Stack>
+
+      {upcomingHolidays.length > 0 && (
+        <Stack gap="sm">
+          <Title order={4}>Upcoming public holidays</Title>
+          <SimpleGrid cols={{ base: 1, xs: 2, md: 3, lg: 5 }}>
+            {upcomingHolidays.map((holiday) => (
+              <Card key={holiday.id} withBorder padding="sm">
+                <Text fw={600}>{holiday.name}</Text>
+                <Text size="sm" c="dimmed">
+                  {dayjs(holiday.date).format('dddd')}, {formatDate(holiday.date)}
+                </Text>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </Stack>
+      )}
 
       <NewLeaveRequestModal opened={newOpened} onClose={newModal.close} />
     </Stack>

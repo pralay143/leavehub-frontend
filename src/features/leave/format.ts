@@ -35,16 +35,25 @@ export function formatDays(days: string | number): string {
   return `${text} ${value === 1 ? 'day' : 'days'}`
 }
 
-/** Working days (Monday to Friday) in a range, matching the backend's count. */
-export function countWorkingDays(start: string, end: string, halfDay = false): number {
+/**
+ * Working days in a range, matching the backend's count: Monday to Friday,
+ * excluding public holidays (dates as 'YYYY-MM-DD').
+ */
+export function countWorkingDays(
+  start: string,
+  end: string,
+  halfDay = false,
+  holidays: ReadonlySet<string> = new Set(),
+): number {
   const first = dayjs(start)
   const last = dayjs(end)
   if (last.isBefore(first)) return 0
-  const isWeekday = (day: dayjs.Dayjs) => day.day() !== 0 && day.day() !== 6
-  if (halfDay) return isWeekday(first) ? 0.5 : 0
+  const isWorkingDay = (day: dayjs.Dayjs) =>
+    day.day() !== 0 && day.day() !== 6 && !holidays.has(day.format('YYYY-MM-DD'))
+  if (halfDay) return isWorkingDay(first) ? 0.5 : 0
   let count = 0
   for (let day = first; !day.isAfter(last); day = day.add(1, 'day')) {
-    if (isWeekday(day)) count += 1
+    if (isWorkingDay(day)) count += 1
   }
   return count
 }

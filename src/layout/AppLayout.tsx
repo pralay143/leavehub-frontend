@@ -29,6 +29,7 @@ const NAV_SECTIONS: NavSection[] = [
       { to: '/admin/users', label: 'Users', visible: isHR },
       { to: '/admin/departments', label: 'Departments', visible: isHR },
       { to: '/admin/leave-types', label: 'Leave types', visible: isHR },
+      { to: '/admin/holidays', label: 'Holidays', visible: isHR },
       { to: '/admin/balances', label: 'Balances', visible: isHR },
     ],
   },

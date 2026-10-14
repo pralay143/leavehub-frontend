@@ -58,6 +58,10 @@ export const router = createBrowserRouter([
                   import('./pages/admin/AdminLeaveTypesPage').then((m) => ({ Component: m.AdminLeaveTypesPage })),
               },
               {
+                path: 'holidays',
+                lazy: () => import('./pages/admin/AdminHolidaysPage').then((m) => ({ Component: m.AdminHolidaysPage })),
+              },
+              {
                 path: 'balances',
                 lazy: () => import('./pages/admin/AdminBalancesPage').then((m) => ({ Component: m.AdminBalancesPage })),
               },

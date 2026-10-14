@@ -1,9 +1,11 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { unwrap } from '../../api/client'
 import {
   type LeaveRequestCreate,
   type LeaveRequestsListData,
+  type PublicHoliday,
+  holidaysList,
   leaveBalancesList,
   leaveRequestsApproveCreate,
   leaveRequestsCancelCreate,
@@ -23,6 +25,8 @@ export const leaveKeys = {
   requestsAll: ['leave-requests'] as const,
   requests: (query: LeaveRequestQuery) => ['leave-requests', query] as const,
   request: (id: number) => ['leave-requests', 'detail', id] as const,
+  holidaysAll: ['holidays'] as const,
+  holidays: (year: number) => ['holidays', year] as const,
 }
 
 export function useLeaveTypes() {
@@ -103,5 +107,29 @@ export function useRejectLeaveRequest() {
     mutationFn: ({ id, comment }: ReviewInput) =>
       unwrap(leaveRequestsRejectCreate({ path: { id }, body: { comment } })),
     onSuccess: invalidate,
+  })
+}
+
+export function useHolidays(year: number) {
+  return useQuery({
+    queryKey: leaveKeys.holidays(year),
+    queryFn: () => unwrap(holidaysList({ query: { year } })),
+    staleTime: 5 * 60_000,
+  })
+}
+
+/** Public holidays for several years, merged and sorted by date. */
+export function useHolidaysForYears(years: number[]) {
+  const unique = [...new Set(years)].sort()
+  return useQueries({
+    queries: unique.map((year) => ({
+      queryKey: leaveKeys.holidays(year),
+      queryFn: () => unwrap(holidaysList({ query: { year } })),
+      staleTime: 5 * 60_000,
+    })),
+    combine: (results) => ({
+      holidays: results.flatMap((result) => result.data ?? []).sort((a, b) => a.date.localeCompare(b.date)) as PublicHoliday[],
+      isLoading: results.some((result) => result.isLoading),
+    }),
   })
 }

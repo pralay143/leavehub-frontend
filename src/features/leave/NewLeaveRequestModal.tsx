@@ -1,4 +1,4 @@
-import { Alert, Button, Checkbox, Group, Modal, Select, Stack, Text, Textarea } from '@mantine/core'
+import { Alert, Button, Checkbox, Group, Indicator, Modal, Select, Stack, Text, Textarea } from '@mantine/core'
 import { DatePickerInput, type DatesRangeValue } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 import { ApiError, errorMessage } from '../../api/client'
 import { useCurrentUser } from '../../auth/context'
-import { useCreateLeaveRequest, useLeaveTypes, useMyBalances } from './api'
+import { useCreateLeaveRequest, useHolidaysForYears, useLeaveTypes, useMyBalances } from './api'
 import { countWorkingDays, currentYear, formatDays } from './format'
 
 type FormValues = {
@@ -51,7 +51,16 @@ export function NewLeaveRequestModal({ opened, onClose }: { opened: boolean; onC
       return { value: String(type.id), label: `${type.name} (${hint})` }
     })
 
-  const days = start && end ? countWorkingDays(start, end, form.values.halfDay && sameDay) : null
+  // Holidays for the calendar (this year and next) and for the selected dates.
+  const holidayYears = [currentYear(), currentYear() + 1, year]
+  if (end) holidayYears.push(dayjs(end).year())
+  const { holidays } = useHolidaysForYears(holidayYears)
+  const holidayNames = new Map(holidays.map((holiday) => [holiday.date, holiday.name]))
+  const holidayDates = new Set(holidayNames.keys())
+  const holidaysInRange =
+    start && end ? holidays.filter((holiday) => holiday.date >= start && holiday.date <= end) : []
+
+  const days = start && end ? countWorkingDays(start, end, form.values.halfDay && sameDay, holidayDates) : null
   const spansYears = Boolean(start && end && dayjs(start).year() !== dayjs(end).year())
 
   const close = () => {
@@ -110,6 +119,11 @@ export function NewLeaveRequestModal({ opened, onClose }: { opened: boolean; onC
             placeholder="First and last day"
             valueFormat="D MMM YYYY"
             clearable
+            renderDay={(date) => (
+              <Indicator size={6} color="red" offset={-3} disabled={!holidayDates.has(date)}>
+                <div title={holidayNames.get(date)}>{dayjs(date).date()}</div>
+              </Indicator>
+            )}
             {...form.getInputProps('dates')}
             onChange={(value) => {
               form.setFieldValue('dates', value)
@@ -129,11 +143,14 @@ export function NewLeaveRequestModal({ opened, onClose }: { opened: boolean; onC
               </Text>
             ) : days === 0 ? (
               <Text size="sm" c="red">
-                The selected dates contain no working days.
+                The selected dates contain no working days{holidaysInRange.length > 0 ? ' (weekends and public holidays)' : ''}.
               </Text>
             ) : (
               <Text size="sm" c="dimmed">
-                {formatDays(days)} (weekdays only)
+                {formatDays(days)}
+                {holidaysInRange.length > 0
+                  ? ` (weekdays only; excludes ${holidaysInRange.length === 1 ? 'public holiday' : 'public holidays'}: ${holidaysInRange.map((h) => h.name).join(', ')})`
+                  : ' (weekdays only)'}
               </Text>
             ))}
           <Textarea label="Reason" placeholder="Optional" autosize minRows={2} maxLength={2000} {...form.getInputProps('reason')} />

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthMeRetrieveData, AuthMeRetrieveResponses, AuthRefreshCreateData, AuthRefreshCreateResponses, DepartmentsCreateData, DepartmentsCreateResponses, DepartmentsListData, DepartmentsListResponses, DepartmentsPartialUpdateData, DepartmentsPartialUpdateResponses, DepartmentsRetrieveData, DepartmentsRetrieveResponses, LeaveBalancesAllocateCreateData, LeaveBalancesAllocateCreateResponses, LeaveBalancesListData, LeaveBalancesListResponses, LeaveBalancesPartialUpdateData, LeaveBalancesPartialUpdateResponses, LeaveBalancesRetrieveData, LeaveBalancesRetrieveResponses, LeaveRequestsApproveCreateData, LeaveRequestsApproveCreateResponses, LeaveRequestsCancelCreateData, LeaveRequestsCancelCreateResponses, LeaveRequestsCreateData, LeaveRequestsCreateResponses, LeaveRequestsListData, LeaveRequestsListResponses, LeaveRequestsRejectCreateData, LeaveRequestsRejectCreateResponses, LeaveRequestsRetrieveData, LeaveRequestsRetrieveResponses, LeaveTypesCreateData, LeaveTypesCreateResponses, LeaveTypesListData, LeaveTypesListResponses, LeaveTypesPartialUpdateData, LeaveTypesPartialUpdateResponses, LeaveTypesRetrieveData, LeaveTypesRetrieveResponses, UsersCreateData, UsersCreateResponses, UsersListData, UsersListResponses, UsersPartialUpdateData, UsersPartialUpdateResponses, UsersRetrieveData, UsersRetrieveResponses } from './types.gen';
+import type { AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthMeRetrieveData, AuthMeRetrieveResponses, AuthRefreshCreateData, AuthRefreshCreateResponses, DepartmentsCreateData, DepartmentsCreateResponses, DepartmentsListData, DepartmentsListResponses, DepartmentsPartialUpdateData, DepartmentsPartialUpdateResponses, DepartmentsRetrieveData, DepartmentsRetrieveResponses, HolidaysCreateData, HolidaysCreateResponses, HolidaysDestroyData, HolidaysDestroyResponses, HolidaysListData, HolidaysListResponses, HolidaysPartialUpdateData, HolidaysPartialUpdateResponses, HolidaysRetrieveData, HolidaysRetrieveResponses, LeaveBalancesAllocateCreateData, LeaveBalancesAllocateCreateResponses, LeaveBalancesListData, LeaveBalancesListResponses, LeaveBalancesPartialUpdateData, LeaveBalancesPartialUpdateResponses, LeaveBalancesRetrieveData, LeaveBalancesRetrieveResponses, LeaveRequestsApproveCreateData, LeaveRequestsApproveCreateResponses, LeaveRequestsCancelCreateData, LeaveRequestsCancelCreateResponses, LeaveRequestsCreateData, LeaveRequestsCreateResponses, LeaveRequestsListData, LeaveRequestsListResponses, LeaveRequestsRejectCreateData, LeaveRequestsRejectCreateResponses, LeaveRequestsRetrieveData, LeaveRequestsRetrieveResponses, LeaveTypesCreateData, LeaveTypesCreateResponses, LeaveTypesListData, LeaveTypesListResponses, LeaveTypesPartialUpdateData, LeaveTypesPartialUpdateResponses, LeaveTypesRetrieveData, LeaveTypesRetrieveResponses, UsersCreateData, UsersCreateResponses, UsersListData, UsersListResponses, UsersPartialUpdateData, UsersPartialUpdateResponses, UsersRetrieveData, UsersRetrieveResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -102,6 +102,74 @@ export const departmentsRetrieve = <ThrowOnError extends boolean = false>(option
 export const departmentsPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<DepartmentsPartialUpdateData, ThrowOnError>): RequestResult<DepartmentsPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<DepartmentsPartialUpdateResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/departments/{id}/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Company-wide public holidays, which are not counted as leave days.
+ *
+ * Everyone can read them; HR can create, update and delete them. Changing
+ * holidays does not recalculate requests that were already submitted.
+ */
+export const holidaysList = <ThrowOnError extends boolean = false>(options?: Options<HolidaysListData, ThrowOnError>): RequestResult<HolidaysListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<HolidaysListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/holidays/',
+    ...options
+});
+
+/**
+ * Company-wide public holidays, which are not counted as leave days.
+ *
+ * Everyone can read them; HR can create, update and delete them. Changing
+ * holidays does not recalculate requests that were already submitted.
+ */
+export const holidaysCreate = <ThrowOnError extends boolean = false>(options: Options<HolidaysCreateData, ThrowOnError>): RequestResult<HolidaysCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<HolidaysCreateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/holidays/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Company-wide public holidays, which are not counted as leave days.
+ *
+ * Everyone can read them; HR can create, update and delete them. Changing
+ * holidays does not recalculate requests that were already submitted.
+ */
+export const holidaysDestroy = <ThrowOnError extends boolean = false>(options: Options<HolidaysDestroyData, ThrowOnError>): RequestResult<HolidaysDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<HolidaysDestroyResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/holidays/{id}/',
+    ...options
+});
+
+/**
+ * Company-wide public holidays, which are not counted as leave days.
+ *
+ * Everyone can read them; HR can create, update and delete them. Changing
+ * holidays does not recalculate requests that were already submitted.
+ */
+export const holidaysRetrieve = <ThrowOnError extends boolean = false>(options: Options<HolidaysRetrieveData, ThrowOnError>): RequestResult<HolidaysRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<HolidaysRetrieveResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/holidays/{id}/',
+    ...options
+});
+
+/**
+ * Company-wide public holidays, which are not counted as leave days.
+ *
+ * Everyone can read them; HR can create, update and delete them. Changing
+ * holidays does not recalculate requests that were already submitted.
+ */
+export const holidaysPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<HolidaysPartialUpdateData, ThrowOnError>): RequestResult<HolidaysPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<HolidaysPartialUpdateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/holidays/{id}/',
     ...options,
     headers: {
         'Content-Type': 'application/json',
